@@ -10,3 +10,8 @@
 .App__container {
   text-align: center;
 }
+.App__message {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}

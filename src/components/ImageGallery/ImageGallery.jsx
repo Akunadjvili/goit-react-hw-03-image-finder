@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 
 import styles from './ImageGallery.module.css';
+
 import ImageGalleryItem from './../ImageGalleryItem';
 
 class ImageGallery extends Component {
@@ -19,14 +20,26 @@ class ImageGallery extends Component {
     onClick: PropTypes.func,
   };
 
+  scrollTo = ref => {
+    if (ref) {
+      // ref.scrollIntoView({ behavior: 'smooth', block: 'end' });
+    }
+  };
+
   render() {
     const { imageList, onClick } = this.props;
     return (
-      <ul className={styles.ImageGallery} onClick={onClick}>
-        {imageList.map(image => {
-          return <ImageGalleryItem key={image.id} image={image} />;
-        })}
-      </ul>
+      <>
+        <ul
+          className={styles.ImageGallery}
+          onClick={onClick}
+          ref={this.scrollTo}
+        >
+          {imageList.map(image => {
+            return <ImageGalleryItem key={image.id} image={image} />;
+          })}
+        </ul>
+      </>
     );
   }
 }

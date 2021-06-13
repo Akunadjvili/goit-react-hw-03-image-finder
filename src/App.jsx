@@ -17,7 +17,8 @@ const DEFAULT_STATE_PART = {
   url: '',
   hint: '',
   showModal: false,
-  showSpinner: false,
+  loading: false,
+  empty: false,
 };
 
 class App extends Component {
@@ -53,12 +54,13 @@ class App extends Component {
   fetchImages = async () => {
     const { search, page } = this.state;
     try {
-      this.setState({ showSpinner: true });
+      this.setState({ loading: true });
       const { data, totalPages } = await fetchImagesDataPixabay(search, page);
-      await this.setState(prev => {
+      this.setState(prev => {
         return {
           page: prev.page + 1,
           images: [...prev.images, ...data],
+          empty: data.length === 0,
           totalPages,
         };
       });
@@ -66,7 +68,7 @@ class App extends Component {
     } catch (error) {
       throw error;
     } finally {
-      this.setState({ showSpinner: false });
+      this.setState({ loading: false });
     }
   };
 
@@ -82,28 +84,39 @@ class App extends Component {
   };
 
   render() {
-    const { showModal, showSpinner } = this.state;
+    const { showModal, loading, empty, search } = this.state;
     const { images, url, hint, page, totalPages } = this.state;
     const left = totalPages - page + 1;
 
     return (
-      <div className={styles.App}>
-        <Searchbar onSubmit={this.onChangeSearchQuery} />
-        <ImageGallery imageList={images} onClick={this.onImageClickHandler} />
-
-        {page - 1 < totalPages && (
-          <div className={styles.App__container}>
-            <Button onClick={this.fetchImages}>Load more [{left}]</Button>
-          </div>
-        )}
-
+      <>
+        <div className={styles.App}>
+          <Searchbar onSubmit={this.onChangeSearchQuery} />
+          {empty ? (
+            <div className={styles.App__message}>
+              <p>Images are not found for "{search}"</p>
+            </div>
+          ) : (
+            <>
+              <ImageGallery
+                imageList={images}
+                onClick={this.onImageClickHandler}
+              />
+              {page - 1 < totalPages && (
+                <div className={styles.App__container}>
+                  <Button onClick={this.fetchImages}>Load more [{left}]</Button>
+                </div>
+              )}
+            </>
+          )}
+        </div>
         {showModal && (
           <Modal onClose={this.toggleModal}>
             <img src={url} alt={hint} />
           </Modal>
         )}
-        {showSpinner && <Loader />}
-      </div>
+        {loading && <Loader />}
+      </>
     );
   }
 }
